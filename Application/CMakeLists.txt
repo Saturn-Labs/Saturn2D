@@ -20,7 +20,7 @@ add_executable(Application
         ${APP_SOURCE_LIST}
 )
 
-target_precompile_headers(Application PRIVATE "${SOURCE_DIR}/pch.hpp")
+target_precompile_headers(Application PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
 target_link_libraries(Application Framework)
 set_target_properties(
         Application
@@ -34,7 +34,7 @@ add_custom_command(
         TARGET Application
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/assets
-        ${CMAKE_SOURCE_DIR}/Output/Application/${CMAKE_BUILD_TYPE}/assets
+        ${CMAKE_CURRENT_SOURCE_DIR}/Assets
+        ${CMAKE_SOURCE_DIR}/Output/Application/${CMAKE_BUILD_TYPE}/Assets
         COMMENT "Assets copied to output folder."
 )

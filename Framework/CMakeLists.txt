@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 include_directories(
         ${INCLUDE_DIR}
         ${SOURCE_DIR}
+        ${VENDOR_DIR}/glfw/include
 )
 
 file(GLOB_RECURSE API_INCLUDE_LIST
@@ -23,11 +24,20 @@ file(GLOB_RECURSE SOURCE_LIST
         "${SOURCE_DIR}/*.cpp"
 )
 
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+add_subdirectory("${VENDOR_DIR}/glfw" "${VENDOR_DIR}/glfw/build")
+
 add_library(Framework STATIC
         ${API_INCLUDE_LIST}
         ${INCLUDE_LIST}
         ${SOURCE_LIST}
 )
+target_link_libraries(Framework PUBLIC glfw)
+target_link_libraries(Framework PUBLIC opengl32.lib)
+
 set_target_properties(
         Framework
         PROPERTIES
@@ -37,4 +47,4 @@ set_target_properties(
 )
 
 set_target_properties(Framework PROPERTIES OUTPUT_NAME "Saturn2D")
-target_precompile_headers(Framework PUBLIC "${SOURCE_DIR}/pch.hpp")
+target_precompile_headers(Framework PUBLIC "${SOURCE_DIR}/Precompiled.hpp")

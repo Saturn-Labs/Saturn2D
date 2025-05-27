@@ -1,14 +1,22 @@
-﻿#include <pch.hpp>
+﻿#include <memory>
+
+#include "Precompiled.hpp"
 #include "Core/Framework.hpp"
+
+#include "Core/Window/GLFW/GLFWWindowFactory.hpp"
 
 namespace Saturn {
     std::unique_ptr<Framework> Framework::_instance;
     std::once_flag Framework::_initFlag;
 
     Framework::Framework() {
+        if (!glfwInit())
+            throw std::runtime_error("Failed to initialize GLFW");
+        _windowManager.reset(new WindowManager(std::unique_ptr<GLFWWindowFactory>(new GLFWWindowFactory())));
     }
 
     Framework::~Framework() {
+        glfwTerminate();
     }
 
     void Framework::initInstance() {
@@ -16,8 +24,11 @@ namespace Saturn {
     }
 
     Framework& Framework::getInstance() {
-        // This ensures that initInstance is called once and it's thread-safe
         std::call_once(_initFlag, initInstance);
         return *_instance;
+    }
+
+    WindowManager& Framework::getWindowManager() const {
+        return *_windowManager;
     }
 }
