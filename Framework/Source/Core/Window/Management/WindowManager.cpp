@@ -1,4 +1,5 @@
-﻿#include "Core/Window/Management/WindowManager.hpp"
+﻿#include "Precompiled.hpp"
+#include "Core/Window/Management/WindowManager.hpp"
 
 #include <ranges>
 

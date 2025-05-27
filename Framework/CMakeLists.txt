@@ -30,6 +30,7 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 add_subdirectory("${VENDOR_DIR}/glfw" "${VENDOR_DIR}/glfw/build")
+set(SPDLOG_HEADER_ONLY OFF CACHE BOOL "" FORCE)
 add_subdirectory("${VENDOR_DIR}/spdlog" "${VENDOR_DIR}/spdlog/build")
 
 add_library(Framework STATIC
@@ -38,7 +39,7 @@ add_library(Framework STATIC
         ${SOURCE_LIST}
 )
 target_link_libraries(Framework PUBLIC glfw)
-target_link_libraries(Framework PUBLIC spdlog::spdlog_header_only)
+target_link_libraries(Framework PUBLIC spdlog::spdlog)
 target_link_libraries(Framework PUBLIC opengl32.lib)
 target_compile_definitions(Framework
         PUBLIC

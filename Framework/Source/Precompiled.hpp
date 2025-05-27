@@ -1,6 +1,11 @@
 #pragma once
+#include <variant>
 #include <memory>
 #include <mutex>
 #include <format>
 #include <stdexcept>
 #include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <functional>
+#include <glm/glm.hpp>

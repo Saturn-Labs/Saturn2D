@@ -1,6 +1,6 @@
-﻿#include <memory>
+﻿#include "Precompiled.hpp"
+#include <memory>
 
-#include "Precompiled.hpp"
 #include "Core/Framework.hpp"
 
 #include "Core/Logging/Log.hpp"

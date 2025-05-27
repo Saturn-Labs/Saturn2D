@@ -1,4 +1,5 @@
-﻿#include "Core/Logging/Log.hpp"
+﻿#include "Precompiled.hpp"
+#include "Core/Logging/Log.hpp"
 
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"

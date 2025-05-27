@@ -1,8 +1,4 @@
-﻿#include <iostream>
-
-#include "Precompiled.hpp"
-#include "Core/Framework.hpp"
-#include "Core/Logging/Log.hpp"
+﻿#include "Precompiled.hpp"
 
 using namespace Saturn;
 
@@ -16,7 +12,7 @@ int main(const int argc, const char* argv[]) {
         props.width = 640;
         props.height = 480;
         windowManager.createWindow(props).setVSync(false);
-    }
+    }//
 
     Log::trace("Hello, World!");
 

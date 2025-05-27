@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include <cstdint>
-
+#include <variant>
 #include "GLFW/glfw3.h"
 
 namespace Saturn {
