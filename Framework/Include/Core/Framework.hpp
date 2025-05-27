@@ -23,6 +23,6 @@ namespace Saturn {
         Framework& operator=(const Framework&) = delete;
         Framework& operator=(Framework&&) = delete;
         static Framework& getInstance();
-        [[nodiscard]] WindowManager& getWindowManager() const;
+        WindowManager& getWindowManager() const;
     };
 }

@@ -23,7 +23,7 @@ namespace Saturn {
 
         ~WindowManager() = default;
         IWindow& createWindow(const WindowProperties& properties);
-        void renderWindows(const std::function<void(IWindow&)>& onRender);
+        void updateWindows(const std::function<void(IWindow&)>& onRender);
         bool hasVisibleWindows() const;
     };
 }

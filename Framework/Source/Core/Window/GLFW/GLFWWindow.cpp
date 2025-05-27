@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 
+#include "Core/Window/GLFW/ScopedContext.hpp"
 #include "Core/Window/GLFW/WindowProps/GLFWWindowProperties.hpp"
 
 namespace Saturn {
@@ -63,13 +64,13 @@ namespace Saturn {
             glfwWindowHint(GLFW_CONTEXT_NO_ERROR, glfwProps->contextNoError);
         }
 
-        _windowHandle = glfwCreateWindow(
+        _windowHandle = NativeWindowHandle(glfwCreateWindow(
             static_cast<int>(properties.width),
             static_cast<int>(properties.height),
             properties.title.c_str(),
             monitor,
             share
-        );
+        ));
 
         if (!_windowHandle.getGlfwHandle()) {
             throw std::runtime_error("Failed to create GLFW window!");
@@ -78,10 +79,8 @@ namespace Saturn {
         if (modifiedHints)
             glfwDefaultWindowHints();
 
-        auto* lastContext = glfwGetCurrentContext();
-        setContextCurrent();
-        glfwSwapInterval(0);
-        glfwMakeContextCurrent(lastContext);
+        ScopedContext ctx(_windowHandle.getGlfwHandle());
+        setVSync(properties.shouldVSync);
     }
 
     GLFWWindow::~GLFWWindow() {
@@ -92,17 +91,14 @@ namespace Saturn {
         return _windowHandle;
     }
 
-    bool GLFWWindow::isValid() {
+    bool GLFWWindow::isValid() const {
         return _windowHandle.getGlfwHandle() && !glfwWindowShouldClose(_windowHandle.getGlfwHandle());
     }
 
     void GLFWWindow::pollEvents() {
         if (!isValid())
             return;
-
-        if (glfwGetCurrentContext() != _windowHandle.getGlfwHandle())
-            setContextCurrent();
-
+        ScopedContext ctx(_windowHandle.getGlfwHandle());
         glfwPollEvents();
     }
 
@@ -112,13 +108,121 @@ namespace Saturn {
         glfwSwapBuffers(_windowHandle.getGlfwHandle());
     }
 
-    void GLFWWindow::setContextCurrent() {
+    glm::vec2 GLFWWindow::getWindowSize() const {
         if (!isValid())
-            return;
-        glfwMakeContextCurrent(_windowHandle.getGlfwHandle());
+            return glm::vec2(0.0f, 0.0f);
+        int width, height;
+        glfwGetWindowSize(_windowHandle.getGlfwHandle(), &width, &height);
+        return glm::vec2(width, height);
     }
 
-    bool GLFWWindow::isVisible() const {
-        return true;
+    glm::vec2 GLFWWindow::getWindowPosition() const {
+        if (!isValid())
+            return glm::vec2(0.0f, 0.0f);
+        int x, y;
+        glfwGetWindowPos(_windowHandle.getGlfwHandle(), &x, &y);
+        return glm::vec2(x, y);
+    }
+
+    std::string GLFWWindow::getWindowTitle() const {
+        if (!isValid())
+            return "";
+        return glfwGetWindowTitle(_windowHandle.getGlfwHandle());
+    }
+
+    float GLFWWindow::getWindowOpacity() const {
+        if (!isValid())
+            return 0;
+        return glfwGetWindowOpacity(_windowHandle.getGlfwHandle());
+    }
+
+    void GLFWWindow::setWindowSize(const glm::vec2 &size) {
+        if (!isValid())
+            return;
+        glfwSetWindowSize(_windowHandle.getGlfwHandle(), static_cast<int>(size.x), static_cast<int>(size.y));
+    }
+
+    void GLFWWindow::setWindowPosition(const glm::vec2 &position) {
+        if (!isValid())
+            return;
+        glfwSetWindowPos(_windowHandle.getGlfwHandle(), static_cast<int>(position.x), static_cast<int>(position.y));
+    }
+
+    void GLFWWindow::setWindowTitle(const std::string &title) {
+        if (!isValid())
+            return;
+        glfwSetWindowTitle(_windowHandle.getGlfwHandle(), title.c_str());
+    }
+
+    void GLFWWindow::setWindowOpacity(float opacity) {
+        if (!isValid())
+            return;
+        glfwSetWindowOpacity(_windowHandle.getGlfwHandle(), opacity);
+    }
+
+    void GLFWWindow::setWindowIcon(uint32_t width, uint32_t height, unsigned char *pixels) {
+        if (!isValid())
+            return;
+        const GLFWimage image {
+            .width = static_cast<int>(width),
+            .height = static_cast<int>(height),
+            .pixels = pixels
+        };
+        glfwSetWindowIcon(_windowHandle.getGlfwHandle(), 1, &image);
+    }
+
+    void GLFWWindow::setInputMode(int mode, int value) {
+        if (!isValid())
+            return;
+        glfwSetInputMode(_windowHandle.getGlfwHandle(), mode, value);
+    }
+
+    bool GLFWWindow::isMaximized() const {
+        if (!isValid())
+            return false;
+        return glfwGetWindowAttrib(_windowHandle.getGlfwHandle(), GLFW_MAXIMIZED);
+    }
+
+    bool GLFWWindow::isIconified() const {
+        if (!isValid())
+            return false;
+        return glfwGetWindowAttrib(_windowHandle.getGlfwHandle(), GLFW_ICONIFIED);
+    }
+
+    bool GLFWWindow::isFocused() const {
+        if (!isValid())
+            return false;
+        return glfwGetWindowAttrib(_windowHandle.getGlfwHandle(), GLFW_FOCUSED);
+    }
+
+    void GLFWWindow::maximize() {
+        if (!isValid())
+            return;
+        glfwMaximizeWindow(_windowHandle.getGlfwHandle());
+    }
+
+    void GLFWWindow::iconify() {
+        if (!isValid())
+            return;
+        glfwIconifyWindow(_windowHandle.getGlfwHandle());
+    }
+
+    void GLFWWindow::focus() {
+        if (!isValid())
+            return;
+        glfwFocusWindow(_windowHandle.getGlfwHandle());
+    }
+
+    void GLFWWindow::restore() {
+        if (!isValid())
+            return;
+        glfwRestoreWindow(_windowHandle.getGlfwHandle());
+    }
+
+    void GLFWWindow::setVSync(bool sync) {
+        if (!isValid())
+            return;
+        ScopedContext ctx(_windowHandle.getGlfwHandle());
+        glfwSwapInterval(sync ? 1 : 0);
     }
 }

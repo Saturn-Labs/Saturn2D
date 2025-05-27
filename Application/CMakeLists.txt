@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 include_directories(
         ${CMAKE_SOURCE_DIR}/Framework/include
+        ${VENDOR_DIR}/glm
         source/
 )
 file(GLOB_RECURSE APP_INCLUDE_LIST

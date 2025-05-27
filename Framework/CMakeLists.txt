@@ -8,6 +8,7 @@ include_directories(
         ${INCLUDE_DIR}
         ${SOURCE_DIR}
         ${VENDOR_DIR}/glfw/include
+        ${VENDOR_DIR}/glm
 )
 
 file(GLOB_RECURSE API_INCLUDE_LIST
@@ -29,6 +30,7 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 add_subdirectory("${VENDOR_DIR}/glfw" "${VENDOR_DIR}/glfw/build")
+add_subdirectory("${VENDOR_DIR}/spdlog" "${VENDOR_DIR}/spdlog/build")
 
 add_library(Framework STATIC
         ${API_INCLUDE_LIST}
@@ -36,7 +38,12 @@ add_library(Framework STATIC
         ${SOURCE_LIST}
 )
 target_link_libraries(Framework PUBLIC glfw)
+target_link_libraries(Framework PUBLIC spdlog::spdlog_header_only)
 target_link_libraries(Framework PUBLIC opengl32.lib)
+target_compile_definitions(Framework
+        PUBLIC
+        $<$<CONFIG:Debug>:DEBUG_BUILD>
+)
 
 set_target_properties(
         Framework

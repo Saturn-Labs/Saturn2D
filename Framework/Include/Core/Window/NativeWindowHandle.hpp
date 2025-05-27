@@ -5,13 +5,32 @@
 
 namespace Saturn {
     struct NativeWindowHandle {
+        using GlfwHandle = GLFWwindow*;
+
     private:
-        uintptr_t _handle;
+        std::variant<std::monostate, GlfwHandle> _handle;
 
     public:
-        NativeWindowHandle(const uintptr_t handle) : _handle(handle) {}
-        NativeWindowHandle(GLFWwindow* glfwWindow) : _handle(reinterpret_cast<uintptr_t>(glfwWindow)) {}
-        uintptr_t getHandle() const { return _handle; }
-        GLFWwindow* getGlfwHandle() const { return reinterpret_cast<GLFWwindow*>(_handle); }
+        NativeWindowHandle() = default;
+        explicit NativeWindowHandle(GlfwHandle handle) :
+            _handle(handle) {
+        }
+
+        bool isGlfw() const {
+            return std::holds_alternative<GlfwHandle>(_handle);
+        }
+
+        GlfwHandle getGlfwHandle() const {
+            if (!isGlfw())
+                throw std::runtime_error("Trying to access NativeWindowHandle as GlfwHandle, but it isn't a GlfwHandle.");
+            return std::get<GlfwHandle>(_handle);
+        }
+
+        uintptr_t getId() const {
+            if (isGlfw()) {
+                return reinterpret_cast<uintptr_t>(getGlfwHandle());
+            }
+            return 0;
+        }
     };
 }

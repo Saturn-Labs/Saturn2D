@@ -3,13 +3,16 @@
 #include "Precompiled.hpp"
 #include "Core/Framework.hpp"
 
+#include "Core/Logging/Log.hpp"
 #include "Core/Window/GLFW/GLFWWindowFactory.hpp"
+#include "spdlog/spdlog.h"
 
 namespace Saturn {
     std::unique_ptr<Framework> Framework::_instance;
     std::once_flag Framework::_initFlag;
 
     Framework::Framework() {
+        Log::init("Saturn2D");
         if (!glfwInit())
             throw std::runtime_error("Failed to initialize GLFW");
         _windowManager.reset(new WindowManager(std::unique_ptr<GLFWWindowFactory>(new GLFWWindowFactory())));
@@ -17,6 +20,7 @@ namespace Saturn {
 
     Framework::~Framework() {
         glfwTerminate();
+        Log::shutdown();
     }
 
     void Framework::initInstance() {
