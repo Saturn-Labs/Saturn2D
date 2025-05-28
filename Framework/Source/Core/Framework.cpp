@@ -41,7 +41,7 @@ namespace Saturn {
         return *_windowManager;
     }
 
-    EventSystem & Framework::getEventSystem() const {
+    EventSystem& Framework::getEventSystem() const {
         return *_eventSystem;
     }
 

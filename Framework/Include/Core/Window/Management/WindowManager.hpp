@@ -14,9 +14,7 @@ namespace Saturn {
         std::unordered_map<uintptr_t, std::unique_ptr<IWindow>> _ownedWindows{};
         std::queue<std::unique_ptr<IWindow>> _windowsToDestroy{};
 
-
         explicit WindowManager(std::unique_ptr<IWindowFactory>&& factory);
-
     public:
         WindowManager() = delete;
         WindowManager(const WindowManager&) = delete;
