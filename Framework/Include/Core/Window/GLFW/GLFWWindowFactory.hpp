@@ -10,6 +10,6 @@ namespace Saturn {
 
     public:
         std::unique_ptr<IWindow> createWindow(const WindowProperties &properties) override;
-        
+        std::string toString() const override;
     };
 }

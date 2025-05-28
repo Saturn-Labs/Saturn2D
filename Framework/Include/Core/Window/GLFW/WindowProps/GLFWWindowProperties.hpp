@@ -5,7 +5,6 @@
 #include "ContextRobustness.hpp"
 #include "OpenGLProfile.hpp"
 #include "Core/Window/WindowProperties.hpp"
-#include "GLFW/glfw3.h"
 
 namespace Saturn {
     struct GLFWWindowProperties final : public WindowProperties {

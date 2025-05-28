@@ -3,12 +3,13 @@
 
 #include <ranges>
 
+#include "Core/Logging/Log.hpp"
 #include "Core/Window/GLFW/ScopedContext.hpp"
 
 namespace Saturn {
     WindowManager::WindowManager(std::unique_ptr<IWindowFactory>&& factory) :
-        _windowFactory(std::move(factory))
-    {
+        _windowFactory(std::move(factory)) {
+        Log::debug("Creating new WindowManager with factory '{}'.", _windowFactory->toString());
     }
 
     IWindow& WindowManager::createWindow(const WindowProperties& properties) {
@@ -21,16 +22,23 @@ namespace Saturn {
     void WindowManager::updateWindows(const std::function<void(IWindow&)>& onRender) {
         for (auto it = _ownedWindows.begin(); it != _ownedWindows.end(); ) {
             auto& window = it->second;
-            if (!window->isValid()) {
-                it = _ownedWindows.erase(it);
-                continue;
+            if (window->isValid() && !window->shouldClose()) {
+                ScopedContext ctx(window->getNativeHandle().getGlfwHandle());
+                window->pollEvents();
+                onRender(*window);
+                window->swapBuffers();
+                ++it;
             }
+            else {
+                _windowsToDestroy.push(std::move(window));
+                it = _ownedWindows.erase(it);
+            }
+        }
+    }
 
-            ScopedContext ctx(window->getNativeHandle().getGlfwHandle());
-            window->pollEvents();
-            onRender(*window);
-            window->swapBuffers();
-            ++it;
+    void WindowManager::destroyWindows() {
+        while (!_windowsToDestroy.empty()) {
+            _windowsToDestroy.pop();
         }
     }
 

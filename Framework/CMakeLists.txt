@@ -29,9 +29,9 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-add_subdirectory("${VENDOR_DIR}/glfw" "${VENDOR_DIR}/glfw/build")
+add_subdirectory("${VENDOR_DIR}/glfw" "${CMAKE_CURRENT_BINARY_DIR}/glfw")
 set(SPDLOG_HEADER_ONLY OFF CACHE BOOL "" FORCE)
-add_subdirectory("${VENDOR_DIR}/spdlog" "${VENDOR_DIR}/spdlog/build")
+add_subdirectory("${VENDOR_DIR}/spdlog" "${CMAKE_CURRENT_BINARY_DIR}/spdlog")
 
 add_library(Framework STATIC
         ${API_INCLUDE_LIST}

@@ -3,13 +3,25 @@
 
 #include <stdexcept>
 
+#include "Core/Framework.hpp"
+#include "Core/Event/Window/FramebufferResizeEvent.hpp"
+#include "Core/Event/Window/WindowCloseEvent.hpp"
+#include "Core/Event/Window/WindowContentScaleChangeEvent.hpp"
+#include "Core/Event/Window/WindowFocusEvent.hpp"
+#include "Core/Event/Window/WindowIconifyEvent.hpp"
+#include "Core/Event/Window/WindowMaximizeEvent.hpp"
+#include "Core/Event/Window/WindowMoveEvent.hpp"
+#include "Core/Event/Window/WindowRefreshEvent.hpp"
+#include "Core/Event/Window/WindowResizeEvent.hpp"
+#include "Core/Logging/Log.hpp"
 #include "Core/Window/GLFW/ScopedContext.hpp"
 #include "Core/Window/GLFW/WindowProps/GLFWWindowProperties.hpp"
 
 namespace Saturn {
     GLFWWindow::GLFWWindow(const WindowProperties& properties) :
         IWindow(),
-        _windowHandle(nullptr)
+        _windowHandle(nullptr),
+        _windowProperties(properties)
     {
         GLFWmonitor* monitor = nullptr;
         GLFWwindow* share = nullptr;
@@ -79,6 +91,63 @@ namespace Saturn {
         if (modifiedHints)
             glfwDefaultWindowHints();
 
+        // Sets the user pointer to this GLFWWindow
+        glfwSetWindowUserPointer(_windowHandle.getGlfwHandle(), this);
+
+        // Sets the resize callback
+        glfwSetWindowSizeCallback(_windowHandle.getGlfwHandle(), [](GLFWwindow* win, int width, int height) {
+            GLFWWindow& window = *static_cast<GLFWWindow*>(glfwGetWindowUserPointer(win));
+            window.onWindowResize(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+        });
+
+        // Sets the close callback
+        glfwSetWindowCloseCallback(_windowHandle.getGlfwHandle(), [](GLFWwindow* win) {
+            GLFWWindow& window = *static_cast<GLFWWindow*>(glfwGetWindowUserPointer(win));
+            window.onWindowClose();
+        });
+
+        // Sets the refresh callback
+        glfwSetWindowRefreshCallback(_windowHandle.getGlfwHandle(), [](GLFWwindow* win) {
+            GLFWWindow& window = *static_cast<GLFWWindow*>(glfwGetWindowUserPointer(win));
+            window.onWindowRefresh();
+        });
+
+        // Sets the focus callback
+        glfwSetWindowFocusCallback(_windowHandle.getGlfwHandle(), [](GLFWwindow* win, int focused) {
+            GLFWWindow& window = *static_cast<GLFWWindow*>(glfwGetWindowUserPointer(win));
+            window.onWindowFocus(focused);
+        });
+
+        // Sets the iconify callback
+        glfwSetWindowIconifyCallback(_windowHandle.getGlfwHandle(), [](GLFWwindow* win, int iconified) {
+            GLFWWindow& window = *static_cast<GLFWWindow*>(glfwGetWindowUserPointer(win));
+            window.onWindowIconified(iconified);
+        });
+
+        // Sets the maximize callback
+        glfwSetWindowMaximizeCallback(_windowHandle.getGlfwHandle(), [](GLFWwindow* win, int maximized) {
+            GLFWWindow& window = *static_cast<GLFWWindow*>(glfwGetWindowUserPointer(win));
+            window.onWindowMaximized(maximized);
+        });
+
+        // Sets the framebuffer resize callback
+        glfwSetFramebufferSizeCallback(_windowHandle.getGlfwHandle(), [](GLFWwindow* win, int width, int height) {
+            GLFWWindow& window = *static_cast<GLFWWindow*>(glfwGetWindowUserPointer(win));
+            window.onFramebufferResize(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+        });
+
+        // Sets the content scale callback
+        glfwSetWindowContentScaleCallback(_windowHandle.getGlfwHandle(), [](GLFWwindow* win, float xScale, float yScale) {
+            GLFWWindow& window = *static_cast<GLFWWindow*>(glfwGetWindowUserPointer(win));
+            window.onContentScaleChange(xScale, yScale);
+        });
+
+        // Sets the move callback
+        glfwSetWindowPosCallback(_windowHandle.getGlfwHandle(), [](GLFWwindow* win, int xPos, int yPos) {
+            GLFWWindow& window = *static_cast<GLFWWindow*>(glfwGetWindowUserPointer(win));
+            window.onWindowMove(xPos, yPos);
+        });
+
         ScopedContext ctx(_windowHandle.getGlfwHandle());
         setVSync(properties.shouldVSync);
     }
@@ -92,7 +161,7 @@ namespace Saturn {
     }
 
     bool GLFWWindow::isValid() const {
-        return _windowHandle.getGlfwHandle() && !glfwWindowShouldClose(_windowHandle.getGlfwHandle());
+        return _windowHandle.getGlfwHandle();
     }
 
     void GLFWWindow::pollEvents() {
@@ -140,6 +209,8 @@ namespace Saturn {
         if (!isValid())
             return;
         glfwSetWindowSize(_windowHandle.getGlfwHandle(), static_cast<int>(size.x), static_cast<int>(size.y));
+        _windowProperties.width = static_cast<int>(size.x);
+        _windowProperties.height = static_cast<int>(size.y);
     }
 
     void GLFWWindow::setWindowPosition(const glm::vec2 &position) {
@@ -152,6 +223,7 @@ namespace Saturn {
         if (!isValid())
             return;
         glfwSetWindowTitle(_windowHandle.getGlfwHandle(), title.c_str());
+        _windowProperties.title = title;
     }
 
     void GLFWWindow::setWindowOpacity(float opacity) {
@@ -224,5 +296,69 @@ namespace Saturn {
             return;
         ScopedContext ctx(_windowHandle.getGlfwHandle());
         glfwSwapInterval(sync ? 1 : 0);
+    }
+
+    const WindowProperties& GLFWWindow::getProperties() const {
+        return _windowProperties;
+    }
+
+    bool GLFWWindow::shouldClose() const {
+        return glfwWindowShouldClose(_windowHandle.getGlfwHandle());
+    }
+
+    void GLFWWindow::setShouldClose(bool close) {
+        if (!isValid())
+            return;
+        glfwSetWindowShouldClose(_windowHandle.getGlfwHandle(), close);
+    }
+
+    std::string GLFWWindow::toString() const {
+        auto size = getWindowSize();
+        return std::format("[GLFWWindow, '{}', {}x{}]", getWindowTitle(), size.x, size.y);
+    }
+
+    void GLFWWindow::onWindowResize(uint32_t width, uint32_t height) {
+        const auto& framework = Framework::getInstance();
+        framework.getEventSystem().createEvent<WindowResizeEvent>(*this, width, height);
+    }
+
+    void GLFWWindow::onWindowClose() {
+        const auto& framework = Framework::getInstance();
+        framework.getEventSystem().createEvent<WindowCloseEvent>(*this);
+    }
+
+    void GLFWWindow::onWindowRefresh() {
+        const auto& framework = Framework::getInstance();
+        framework.getEventSystem().createEvent<WindowRefreshEvent>(*this);
+    }
+
+    void GLFWWindow::onWindowFocus(bool focused) {
+        const auto& framework = Framework::getInstance();
+        framework.getEventSystem().createEvent<WindowFocusEvent>(*this, focused);
+    }
+
+    void GLFWWindow::onWindowIconified(bool iconified) {
+        const auto& framework = Framework::getInstance();
+        framework.getEventSystem().createEvent<WindowIconifyEvent>(*this, iconified);
+    }
+
+    void GLFWWindow::onWindowMaximized(bool maximized) {
+        const auto& framework = Framework::getInstance();
+        framework.getEventSystem().createEvent<WindowMaximizeEvent>(*this, maximized);
+    }
+
+    void GLFWWindow::onFramebufferResize(uint32_t width, uint32_t height) {
+        const auto& framework = Framework::getInstance();
+        framework.getEventSystem().createEvent<FramebufferResizeEvent>(*this, width, height);
+    }
+
+    void GLFWWindow::onContentScaleChange(float sx, float sy) {
+        const auto& framework = Framework::getInstance();
+        framework.getEventSystem().createEvent<WindowContentScaleChangeEvent>(*this, sx, sy);
+    }
+
+    void GLFWWindow::onWindowMove(int xp, int yp) {
+        const auto& framework = Framework::getInstance();
+        framework.getEventSystem().createEvent<WindowMoveEvent>(*this, xp, yp);
     }
 }

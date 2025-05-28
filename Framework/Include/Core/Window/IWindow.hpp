@@ -2,9 +2,12 @@
 #include <functional>
 #include <glm/glm.hpp>
 #include "NativeWindowHandle.hpp"
+#include "WindowProperties.hpp"
+#include "Core/Types/Object.hpp"
 
 namespace Saturn {
-    class IWindow {
+    class IWindow :
+        public Object {
     protected:
         IWindow() = default;
     public:
@@ -13,7 +16,7 @@ namespace Saturn {
         IWindow(IWindow&&) = delete;
         IWindow& operator=(IWindow&&) = delete;
 
-        virtual ~IWindow() = default;
+        ~IWindow() override = default;
         virtual NativeWindowHandle getNativeHandle() const = 0;
         virtual bool isValid() const = 0;
         virtual void pollEvents() = 0;
@@ -36,5 +39,8 @@ namespace Saturn {
         virtual void focus() = 0;
         virtual void restore() = 0;
         virtual void setVSync(bool sync) = 0;
+        virtual const WindowProperties& getProperties() const = 0;
+        virtual bool shouldClose() const = 0;
+        virtual void setShouldClose(bool close) = 0;
     };
 }

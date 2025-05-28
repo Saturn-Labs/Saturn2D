@@ -8,6 +8,7 @@ namespace Saturn {
         friend class GLFWWindowFactory;
     private:
         NativeWindowHandle _windowHandle;
+        WindowProperties _windowProperties;
 
         explicit GLFWWindow(const WindowProperties& properties);
 
@@ -35,6 +36,20 @@ namespace Saturn {
         void focus() override;
         void restore() override;
         void setVSync(bool sync) override;
+        const WindowProperties& getProperties() const override;
+        bool shouldClose() const override;
+        void setShouldClose(bool close) override;
+        std::string toString() const override;
 
+        // Window related events
+        void onWindowResize(uint32_t width, uint32_t height);
+        void onWindowClose();
+        void onWindowRefresh();
+        void onWindowFocus(bool focused);
+        void onWindowIconified(bool iconified);
+        void onWindowMaximized(bool maximized);
+        void onFramebufferResize(uint32_t width, uint32_t height);
+        void onContentScaleChange(float sx, float sy);
+        void onWindowMove(int xp, int yp);
     };
 }

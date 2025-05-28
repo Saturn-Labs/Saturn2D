@@ -2,6 +2,7 @@
 #include <memory>
 #include <mutex>
 
+#include "Event/EventSystem.hpp"
 #include "Window/IWindowFactory.hpp"
 #include "Window/Management/WindowManager.hpp"
 
@@ -12,6 +13,7 @@ namespace Saturn {
         static std::once_flag _initFlag;
 
         std::unique_ptr<WindowManager> _windowManager;
+        std::unique_ptr<EventSystem> _eventSystem;
 
         Framework();
         static void initInstance();
@@ -24,5 +26,7 @@ namespace Saturn {
         Framework& operator=(Framework&&) = delete;
         static Framework& getInstance();
         WindowManager& getWindowManager() const;
+        EventSystem& getEventSystem() const;
+        void processEvents() const;
     };
 }

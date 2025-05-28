@@ -3,11 +3,13 @@
 
 #include "IWindow.hpp"
 #include "WindowProperties.hpp"
+#include "Core/Types/Object.hpp"
 
 namespace Saturn {
-    class IWindowFactory {
+    class IWindowFactory :
+        public Object {
     public:
-        virtual ~IWindowFactory() = default;
+        ~IWindowFactory() override = default;
         virtual std::unique_ptr<IWindow> createWindow(const WindowProperties& properties) = 0;
     };
 }
