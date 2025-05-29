@@ -1,8 +1,6 @@
 ﻿#include "Precompiled.hpp"
 #include <memory>
-
 #include "Core/Framework.hpp"
-
 #include "Core/Event/EventSystem.hpp"
 #include "Core/Event/Window/WindowResizeEvent.hpp"
 #include "Core/Logging/Log.hpp"
@@ -15,16 +13,15 @@ namespace Saturn {
 
     Framework::Framework() {
         Log::init("Saturn2D");
-        if (!glfwInit())
-            throw std::runtime_error("Failed to initialize GLFW");
-        Log::debug("GLFW was initialized.");
-        _eventSystem.reset(new EventSystem());
-        _windowManager.reset(new WindowManager(std::unique_ptr<GLFWWindowFactory>(new GLFWWindowFactory())));
+        _glfwContext = new GLFWContext();
+        _windowManager = new WindowManager(std::unique_ptr<GLFWWindowFactory>(new GLFWWindowFactory()));
+        _eventSystem = new EventSystem();
     }
 
     Framework::~Framework() {
-        glfwTerminate();
-        Log::debug("GLFW was terminated.");
+        delete _eventSystem;
+        delete _windowManager;
+        delete _glfwContext;
         Log::shutdown();
     }
 
@@ -35,6 +32,14 @@ namespace Saturn {
     Framework& Framework::getInstance() {
         std::call_once(_initFlag, initInstance);
         return *_instance;
+    }
+
+    GLFWContext* Framework::getGlfwContext() const {
+        return _glfwContext;
+    }
+
+    bool Framework::hasGlfwContext() const {
+        return getGlfwContext();
     }
 
     WindowManager& Framework::getWindowManager() const {

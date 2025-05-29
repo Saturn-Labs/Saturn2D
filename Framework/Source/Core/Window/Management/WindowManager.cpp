@@ -4,7 +4,7 @@
 #include <ranges>
 
 #include "Core/Logging/Log.hpp"
-#include "Core/Window/GLFW/ScopedContext.hpp"
+#include "Core/Window/GLFW/ScopedOpenGLContext.hpp"
 
 namespace Saturn {
     WindowManager::WindowManager(std::unique_ptr<IWindowFactory>&& factory) :
@@ -23,7 +23,7 @@ namespace Saturn {
         for (auto it = _ownedWindows.begin(); it != _ownedWindows.end(); ) {
             auto& window = it->second;
             if (window->isValid() && !window->shouldClose()) {
-                ScopedContext ctx(window->getNativeHandle().getGlfwHandle());
+                ScopedOpenGLContext ctx(window->getNativeHandle().getGlfwHandle());
                 window->pollEvents();
                 onRender(*window);
                 window->swapBuffers();

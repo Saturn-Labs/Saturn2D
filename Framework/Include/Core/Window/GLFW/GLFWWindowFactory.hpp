@@ -6,7 +6,7 @@ namespace Saturn {
     class GLFWWindowFactory final : public IWindowFactory {
         friend class Framework;
     private:
-        GLFWWindowFactory() = default;
+        GLFWWindowFactory();
 
     public:
         std::unique_ptr<IWindow> createWindow(const WindowProperties &properties) override;

@@ -7,20 +7,20 @@
 
 namespace Saturn {
     class EventSystem {
+        friend class Framework;
     public:
         using EventList = std::vector<std::unique_ptr<Event>>;
         using EventListenerFn = bool(*)(const Event&);
         using EventListenerList = std::unordered_map<EventType, std::vector<EventListenerFn>>;
 
     private:
-        friend class Framework;
         EventList _events{};
         EventListenerList _listeners{};
 
         EventSystem();
+        ~EventSystem();
         void dispatchEvents();
     public:
-        ~EventSystem();
         EventSystem(const EventSystem&) = delete;
         EventSystem& operator=(const EventSystem&) = delete;
         EventSystem(EventSystem&&) = delete;

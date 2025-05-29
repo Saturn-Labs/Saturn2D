@@ -4,6 +4,8 @@
 #include <mutex>
 #include <format>
 #include <stdexcept>
+#include <glad/gl.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>

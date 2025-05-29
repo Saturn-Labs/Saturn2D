@@ -51,5 +51,8 @@ namespace Saturn {
         void onFramebufferResize(uint32_t width, uint32_t height);
         void onContentScaleChange(float sx, float sy);
         void onWindowMove(int xp, int yp);
+
+        // OpenGL related stuff
+        void onOpenGLDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const;
     };
 }

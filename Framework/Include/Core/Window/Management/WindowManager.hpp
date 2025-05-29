@@ -15,6 +15,7 @@ namespace Saturn {
         std::queue<std::unique_ptr<IWindow>> _windowsToDestroy{};
 
         explicit WindowManager(std::unique_ptr<IWindowFactory>&& factory);
+        ~WindowManager() = default;
     public:
         WindowManager() = delete;
         WindowManager(const WindowManager&) = delete;
@@ -22,7 +23,6 @@ namespace Saturn {
         WindowManager& operator=(const WindowManager&) = delete;
         WindowManager& operator=(WindowManager&&) = delete;
 
-        ~WindowManager() = default;
         IWindow& createWindow(const WindowProperties& properties);
         void updateWindows(const std::function<void(IWindow&)>& onRender);
         void destroyWindows();

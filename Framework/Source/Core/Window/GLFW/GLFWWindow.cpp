@@ -14,7 +14,7 @@
 #include "Core/Event/Window/WindowRefreshEvent.hpp"
 #include "Core/Event/Window/WindowResizeEvent.hpp"
 #include "Core/Logging/Log.hpp"
-#include "Core/Window/GLFW/ScopedContext.hpp"
+#include "Core/Window/GLFW/ScopedOpenGLContext.hpp"
 #include "Core/Window/GLFW/WindowProps/GLFWWindowProperties.hpp"
 
 namespace Saturn {
@@ -23,9 +23,13 @@ namespace Saturn {
         _windowHandle(nullptr),
         _windowProperties(properties)
     {
+        if (!Framework::getInstance().hasGlfwContext())
+            throw std::runtime_error("GLFW window could not be created! (There is no GLFW context)");
+
         GLFWmonitor* monitor = nullptr;
         GLFWwindow* share = nullptr;
         bool modifiedHints = false;
+        bool debugContext = false;
         if (auto* glfwProps = dynamic_cast<const GLFWWindowProperties*>(&properties)) {
             modifiedHints = true;
             monitor = glfwProps->monitor;
@@ -67,6 +71,7 @@ namespace Saturn {
             glfwWindowHint(GLFW_CONTEXT_RELEASE_BEHAVIOR, static_cast<int>(glfwProps->contextReleaseBehavior));
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, glfwProps->forwardCompatibility);
             glfwWindowHint(GLFW_CONTEXT_DEBUG, glfwProps->debugContext);
+            debugContext = glfwProps->debugContext;
             glfwWindowHint(GLFW_OPENGL_PROFILE, static_cast<int>(glfwProps->openGLProfile));
             glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, glfwProps->cocoaRetinaFramebuffer);
             glfwWindowHintString(GLFW_COCOA_FRAME_NAME, glfwProps->cocoaFrameName.c_str());
@@ -84,12 +89,24 @@ namespace Saturn {
             share
         ));
 
-        if (!_windowHandle.getGlfwHandle()) {
+        ScopedOpenGLContext ctx(_windowHandle.getGlfwHandle());
+        if (!_windowHandle.getGlfwHandle())
             throw std::runtime_error("Failed to create GLFW window!");
-        }
+        if (!gladLoadGL(glfwGetProcAddress))
+            throw std::runtime_error("Failed to initialize GLAD");
 
         if (modifiedHints)
             glfwDefaultWindowHints();
+
+        // Sets the OpenGL debug message callback
+        if (debugContext) {
+            glEnable(GL_DEBUG_OUTPUT);
+            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+            glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+                auto* window = static_cast<const GLFWWindow*>(userParam);
+                window->onOpenGLDebugMessage(source, type, id, severity, length, message);
+            }, this);
+        }
 
         // Sets the user pointer to this GLFWWindow
         glfwSetWindowUserPointer(_windowHandle.getGlfwHandle(), this);
@@ -147,8 +164,6 @@ namespace Saturn {
             GLFWWindow& window = *static_cast<GLFWWindow*>(glfwGetWindowUserPointer(win));
             window.onWindowMove(xPos, yPos);
         });
-
-        ScopedContext ctx(_windowHandle.getGlfwHandle());
         setVSync(properties.shouldVSync);
     }
 
@@ -167,7 +182,7 @@ namespace Saturn {
     void GLFWWindow::pollEvents() {
         if (!isValid())
             return;
-        ScopedContext ctx(_windowHandle.getGlfwHandle());
+        ScopedOpenGLContext ctx(_windowHandle.getGlfwHandle());
         glfwPollEvents();
     }
 
@@ -294,7 +309,7 @@ namespace Saturn {
     void GLFWWindow::setVSync(bool sync) {
         if (!isValid())
             return;
-        ScopedContext ctx(_windowHandle.getGlfwHandle());
+        ScopedOpenGLContext ctx(_windowHandle.getGlfwHandle());
         glfwSwapInterval(sync ? 1 : 0);
     }
 
@@ -360,5 +375,9 @@ namespace Saturn {
     void GLFWWindow::onWindowMove(int xp, int yp) {
         const auto& framework = Framework::getInstance();
         framework.getEventSystem().createEvent<WindowMoveEvent>(*this, xp, yp);
+    }
+
+    void GLFWWindow::onOpenGLDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message) const {
+        Log::debug("OpenGL debug message: {}", message);
     }
 }

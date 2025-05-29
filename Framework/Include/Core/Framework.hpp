@@ -3,6 +3,7 @@
 #include <mutex>
 
 #include "Event/EventSystem.hpp"
+#include "Platform/GLFW/GLFWContext.hpp"
 #include "Window/IWindowFactory.hpp"
 #include "Window/Management/WindowManager.hpp"
 
@@ -12,8 +13,9 @@ namespace Saturn {
         static std::unique_ptr<Framework> _instance;
         static std::once_flag _initFlag;
 
-        std::unique_ptr<WindowManager> _windowManager;
-        std::unique_ptr<EventSystem> _eventSystem;
+        GLFWContext* _glfwContext = nullptr;
+        WindowManager* _windowManager = nullptr;
+        EventSystem* _eventSystem = nullptr;
 
         Framework();
         static void initInstance();
@@ -25,6 +27,8 @@ namespace Saturn {
         Framework& operator=(const Framework&) = delete;
         Framework& operator=(Framework&&) = delete;
         static Framework& getInstance();
+        GLFWContext* getGlfwContext() const;
+        bool hasGlfwContext() const;
         WindowManager& getWindowManager() const;
         EventSystem& getEventSystem() const;
         void processEvents() const;

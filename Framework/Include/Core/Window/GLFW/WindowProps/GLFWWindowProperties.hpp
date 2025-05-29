@@ -44,7 +44,11 @@ namespace Saturn {
         ContextRobustness contextRobustness = ContextRobustness::NoRobustness;
         ContextReleaseBehavior contextReleaseBehavior = ContextReleaseBehavior::Any;
         bool forwardCompatibility = false;
+#ifdef DEBUG_BUILD
+        bool debugContext = true;
+#else
         bool debugContext = false;
+#endif
         OpenGLProfile openGLProfile = OpenGLProfile::Any;
         bool cocoaRetinaFramebuffer = true;
         std::string cocoaFrameName;
