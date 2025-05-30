@@ -6,9 +6,9 @@
 namespace Saturn {
     class GLFWWindow final : public IWindow {
         friend class GLFWWindowFactory;
-    private:
         NativeWindowHandle _windowHandle;
         WindowProperties _windowProperties;
+        GraphicsContext _context;
 
         explicit GLFWWindow(const WindowProperties& properties);
 
@@ -40,6 +40,8 @@ namespace Saturn {
         bool shouldClose() const override;
         void setShouldClose(bool close) override;
         std::string toString() const override;
+        const GraphicsContext& getContext() override;
+        bool isVisible() override;
 
         // Window related events
         void onWindowResize(uint32_t width, uint32_t height);
@@ -54,5 +56,7 @@ namespace Saturn {
 
         // OpenGL related stuff
         void onOpenGLDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const;
+        void makeContextCurrent();
+
     };
 }

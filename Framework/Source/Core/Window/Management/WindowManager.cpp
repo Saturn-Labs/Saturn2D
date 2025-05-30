@@ -25,8 +25,10 @@ namespace Saturn {
             if (window->isValid() && !window->shouldClose()) {
                 ScopedOpenGLContext ctx(window->getNativeHandle().getGlfwHandle());
                 window->pollEvents();
-                onRender(*window);
-                window->swapBuffers();
+                if (window->isVisible()) {
+                    onRender(*window);
+                    window->swapBuffers();
+                }
                 ++it;
             }
             else {

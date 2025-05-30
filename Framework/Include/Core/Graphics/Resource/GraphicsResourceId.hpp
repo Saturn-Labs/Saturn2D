@@ -3,10 +3,11 @@
 #include <variant>
 
 #include "Core/Graphics/GraphicsAPI.hpp"
+#include "Core/Types/Object.hpp"
 #include "glad/gl.h"
 
 namespace Saturn {
-    class GraphicsResourceId {
+    class GraphicsResourceId final : public Object {
         using OpenGLResourceId = GLuint;
         GraphicsAPI _api = GraphicsAPI::Unknown;
         std::variant<std::monostate, OpenGLResourceId> _id = std::monostate{};
@@ -34,5 +35,7 @@ namespace Saturn {
         static GraphicsResourceId Invalid() {
             return GraphicsResourceId{};
         }
+
+        [[nodiscard]] std::string toString() const override;
     };
 }

@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include "NativeWindowHandle.hpp"
 #include "WindowProperties.hpp"
+#include "Core/Graphics/GraphicsContext.hpp"
 #include "Core/Types/Object.hpp"
 
 namespace Saturn {
@@ -42,5 +43,7 @@ namespace Saturn {
         virtual const WindowProperties& getProperties() const = 0;
         virtual bool shouldClose() const = 0;
         virtual void setShouldClose(bool close) = 0;
+        virtual const GraphicsContext& getContext() = 0;
+        virtual bool isVisible() = 0;
     };
 }

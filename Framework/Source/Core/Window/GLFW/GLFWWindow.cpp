@@ -21,7 +21,8 @@ namespace Saturn {
     GLFWWindow::GLFWWindow(const WindowProperties& properties) :
         IWindow(),
         _windowHandle(nullptr),
-        _windowProperties(properties)
+        _windowProperties(properties),
+        _context([this] { makeContextCurrent(); }, this)
     {
         if (!Framework::getInstance().hasGlfwContext())
             throw std::runtime_error("GLFW window could not be created! (There is no GLFW context)");
@@ -332,6 +333,14 @@ namespace Saturn {
         return std::format("[GLFWWindow, '{}', {}x{}]", getWindowTitle(), size.x, size.y);
     }
 
+    const GraphicsContext& GLFWWindow::getContext() {
+        return _context;
+    }
+
+    bool GLFWWindow::isVisible() {
+        return glfwGetWindowAttrib(_windowHandle.getGlfwHandle(), GLFW_VISIBLE);
+    }
+
     void GLFWWindow::onWindowResize(uint32_t width, uint32_t height) {
         const auto& framework = Framework::getInstance();
         framework.getEventSystem().createEvent<WindowResizeEvent>(*this, width, height);
@@ -379,5 +388,11 @@ namespace Saturn {
 
     void GLFWWindow::onOpenGLDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message) const {
         Log::debug("OpenGL debug message: {}", message);
+    }
+
+    void GLFWWindow::makeContextCurrent() {
+        if (!isValid())
+            return;
+        glfwMakeContextCurrent(_windowHandle.getGlfwHandle());
     }
 }

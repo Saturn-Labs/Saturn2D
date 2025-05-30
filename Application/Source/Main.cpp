@@ -13,11 +13,13 @@ using namespace Saturn;
 int main(const int argc, const char* argv[]) {
     auto& fw = Framework::getInstance();
     auto& windowManager = fw.getWindowManager();
+    auto& resourceManager = fw.getResourceManager();
 
     GLFWWindowProperties props;
     props.title = "Saturn 1";
     props.width = 640;
     props.height = 480;
+    props.share = resourceManager.getResourceContext().getWindow()->getNativeHandle().getGlfwHandle();
     IWindow& window = windowManager.createWindow(props);
     window.setVSync(false);
 
@@ -74,14 +76,12 @@ int main(const int argc, const char* argv[]) {
     GLuint vao;
     {
         ScopedOpenGLContext ctx(window.getNativeHandle().getGlfwHandle());
-        GLuint vbo;
-        glGenBuffers(1, &vbo);
+        GLuint vbo = resourceManager.getResourceFactory().createBuffer().get().getOpenGLResourceId();
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 24, cubeVertices, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        GLuint ebo;
-        glGenBuffers(1, &ebo);
+        GLuint ebo = resourceManager.getResourceFactory().createBuffer().get().getOpenGLResourceId();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 36, cubeIndices, GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

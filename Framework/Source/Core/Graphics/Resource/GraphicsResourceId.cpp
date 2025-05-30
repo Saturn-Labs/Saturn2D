@@ -72,4 +72,16 @@ namespace Saturn {
         }
         return std::nullopt;
     }
+
+    std::string GraphicsResourceId::toString() const {
+        if (!isValid())
+            return "[Invalid Graphics Resource]";
+
+        switch (_api) {
+            case GraphicsAPI::OpenGL:
+                return "[OpenGL Resource: " + std::to_string(std::get<OpenGLResourceId>(_id)) + "]";
+            default:
+                return "[UnknownAPI Graphics Resource]";
+        }
+    }
 }

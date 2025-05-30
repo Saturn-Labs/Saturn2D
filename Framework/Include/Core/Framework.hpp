@@ -3,6 +3,7 @@
 #include <mutex>
 
 #include "Event/EventSystem.hpp"
+#include "Graphics/Resource/ResourceManager.hpp"
 #include "Platform/GLFW/GLFWContext.hpp"
 #include "Window/IWindowFactory.hpp"
 #include "Window/Management/WindowManager.hpp"
@@ -16,6 +17,7 @@ namespace Saturn {
         GLFWContext* _glfwContext = nullptr;
         WindowManager* _windowManager = nullptr;
         EventSystem* _eventSystem = nullptr;
+        ResourceManager* _resourceManager = nullptr;
 
         Framework();
         static void initInstance();
@@ -31,6 +33,7 @@ namespace Saturn {
         bool hasGlfwContext() const;
         WindowManager& getWindowManager() const;
         EventSystem& getEventSystem() const;
+        ResourceManager& getResourceManager() const;
         void processEvents() const;
     };
 }
