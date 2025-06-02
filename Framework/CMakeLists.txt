@@ -4,12 +4,7 @@ project(Framework)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-include_directories(
-        ${INCLUDE_DIR}
-        ${SOURCE_DIR}
-        ${VENDOR_DIR}/glm
-        ${VENDOR_DIR}/glad/include
-)
+
 
 file(GLOB_RECURSE API_INCLUDE_LIST
         "${INCLUDE_DIR}/*.h"
@@ -39,12 +34,27 @@ add_library(Framework STATIC
         ${INCLUDE_LIST}
         ${SOURCE_LIST}
 )
+
+target_include_directories(
+        Framework
+        PUBLIC
+        ${INCLUDE_DIR}
+        ${VENDOR_DIR}/glm
+)
+
 target_link_libraries(Framework PUBLIC glfw)
 target_link_libraries(Framework PUBLIC spdlog::spdlog)
 target_link_libraries(Framework PUBLIC glad)
+
 target_compile_definitions(Framework
         PUBLIC
         $<$<CONFIG:Debug>:DEBUG_BUILD>
+)
+
+target_include_directories(
+        Framework
+        PRIVATE
+        ${SOURCE_DIR}
 )
 
 set_target_properties(

@@ -2,11 +2,6 @@
 project(Application)
 set(CMAKE_CXX_STANDARD 20)
 
-include_directories(
-        ${CMAKE_SOURCE_DIR}/Framework/include
-        ${VENDOR_DIR}/glm
-        source/
-)
 file(GLOB_RECURSE APP_INCLUDE_LIST
         "${SOURCE_DIR}/*.h"
         "${SOURCE_DIR}/*.hpp"
@@ -23,6 +18,7 @@ add_executable(Application
 
 target_precompile_headers(Application PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
 target_link_libraries(Application Framework)
+
 set_target_properties(
         Application
         PROPERTIES
@@ -31,11 +27,17 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Output/Application/${CMAKE_BUILD_TYPE}
 )
 
+target_include_directories(
+        Application
+        PRIVATE
+        ${SOURCE_DIR}
+)
+
 add_custom_command(
         TARGET Application
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/Assets
-        ${CMAKE_SOURCE_DIR}/Output/Application/${CMAKE_BUILD_TYPE}/Assets
-        COMMENT "Assets copied to output folder."
+        ${CMAKE_CURRENT_SOURCE_DIR}/data
+        ${CMAKE_SOURCE_DIR}/Output/Application/${CMAKE_BUILD_TYPE}/data
+        COMMENT "Data folder copied to output folder."
 )
