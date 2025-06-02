@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.29)
-project(Saturn2D)
+project(SaturnFX)
 set(CMAKE_CXX_STANDARD 20)
 set(SOURCE_DIR "src")
 set(INCLUDE_DIR "inc")
