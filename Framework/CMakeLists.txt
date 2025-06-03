@@ -46,10 +46,19 @@ target_link_libraries(Framework PUBLIC glfw)
 target_link_libraries(Framework PUBLIC spdlog::spdlog)
 target_link_libraries(Framework PUBLIC glad)
 
-target_compile_definitions(Framework
+target_compile_definitions(
+        Framework
         PUBLIC
         $<$<CONFIG:Debug>:DEBUG_BUILD>
 )
+
+if(SATURN_DEFINE_MAIN)
+    target_compile_definitions(
+            Framework
+            PUBLIC
+            SATURN_FX_MAIN
+    )
+endif()
 
 target_include_directories(
         Framework
@@ -65,5 +74,5 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Output/Framework/${CMAKE_BUILD_TYPE}
 )
 
-set_target_properties(Framework PROPERTIES OUTPUT_NAME "Saturn2D")
+set_target_properties(Framework PROPERTIES OUTPUT_NAME "SaturnFX")
 target_precompile_headers(Framework PUBLIC "${SOURCE_DIR}/Precompiled.hpp")

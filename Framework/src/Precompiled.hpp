@@ -3,6 +3,7 @@
 #include <memory>
 #include <mutex>
 #include <format>
+#include <iostream>
 #include <stdexcept>
 #include <glad/gl.h>
 #define GLFW_INCLUDE_NONE

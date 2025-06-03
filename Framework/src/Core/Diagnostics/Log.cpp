@@ -1,5 +1,5 @@
-﻿#include "Core/Diagnostics/Log.hpp"
-
+﻿#include "Precompiled.hpp"
+#include "Core/Diagnostics/Log.hpp"
 #include "spdlog/sinks/stdout_color_sinks.h"
 
 namespace Saturn {

@@ -5,5 +5,6 @@ set(SOURCE_DIR "src")
 set(INCLUDE_DIR "inc")
 set(VENDOR_DIR "${CMAKE_CURRENT_LIST_DIR}/Vendor")
 
+set(SATURN_DEFINE_MAIN ON)
 add_subdirectory(Framework)
 add_subdirectory(Application)
